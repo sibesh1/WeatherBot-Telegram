@@ -14,9 +14,16 @@ app.get("/", (request, response) => {
 
 const wakeup = () => {
   console.log("wakeup");
-  app.get("/", (request, response) => {
-    response.send("<h1>Hello,this is my telegram bot.</h1>");
-  });
+  axios
+    .get(process.env.MYBACKENDURL)
+    .then(function (response) {
+      // handle success
+      console.log(response);
+    })
+    .catch(function (error) {
+      // handle error
+      console.log(error);
+    });
 };
 
 // Created instance of TelegramBot
