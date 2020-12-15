@@ -7,6 +7,18 @@ const axios = require("axios");
 const API_KEY = process.env.API_KEY;
 const token = process.env.TOKEN;
 
+//GET REQUESTS
+app.get("/", (request, response) => {
+  response.send("<h1>Hello,this is my telegram bot.</h1>");
+});
+
+const wakeup = () => {
+  console.log("wakeup");
+  app.get("/", (request, response) => {
+    response.send("<h1>Hello,this is my telegram bot.</h1>");
+  });
+};
+
 // Created instance of TelegramBot
 const bot = new TelegramBot(token, {
   polling: true,
@@ -14,6 +26,7 @@ const bot = new TelegramBot(token, {
 
 // Listener (handler) for telegram's /info event
 bot.onText(/\/info/, (msg, match) => {
+  wakeup();
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, "Bot By Sibesh Behera\nhttps://github.com/sibesh1");
 });
