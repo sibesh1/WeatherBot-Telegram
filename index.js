@@ -23,7 +23,7 @@ bot.onText(/\/start/, (msg, match) => {
   const chatId = msg.chat.id;
   bot.sendMessage(
     chatId,
-    "You can use this bot by typing in the below specified format:\n1)/info-Gives info of owner of this bot.\n2)/current <Enter the name of location> - Gives current weather details of the location.\n3)/forecast <Enter the name of location> - Gives weather forecast of the location."
+    "You can use this bot by typing in the below specified format:\n1)/info-Gives info of owner of this bot.\n2)/current Enter the name of location - Gives current weather details of the location.\n3)/forecast Enter the name of location - Gives weather forecast of the location.\n4)/usegps - Give access to your location and I will tell your weather accordingly."
   );
 });
 
@@ -55,13 +55,62 @@ bot.onText(/\/current/, (msg, match) => {
       //   );
       bot.sendMessage(
         chatId,
-        `Your location is ${data.location.name},${data.location.country}.\nThe current temperature is ${data.current.temp_c}\u00B0C and feelslike ${data.current.feelslike_c}\u00B0C.\nThe windspeed is ${data.current.wind_kph}kph.`
+        `Your location is ${data.location.name},${data.location.country}.\nThe current temperature is ${data.current.temp_c}\u00B0C and feels like ${data.current.feelslike_c}\u00B0C.\nThe windspeed is ${data.current.wind_kph}kph.`
       );
     })
     .catch(function (error) {
       // handle error
       console.log(error);
-      bot.sendMessage("Some error occurred.I will rectify it soon.");
+      bot.sendMessage(chatId, "Some error occurred.I will rectify it soon.");
+    });
+});
+
+// Keyboard layout for requesting phone number access
+const requestPhoneKeyboard = {
+  reply_markup: {
+    one_time_keyboard: true,
+    keyboard: [
+      [
+        {
+          text: "My phone number",
+          request_contact: true,
+          one_time_keyboard: true,
+        },
+      ],
+      ["Cancel"],
+    ],
+  },
+};
+
+// Listener (handler) for retrieving phone number
+bot.onText(/^\/usegps/, function (msg, match) {
+  var option = {
+    parse_mode: "Markdown",
+    reply_markup: {
+      one_time_keyboard: true,
+      keyboard: [
+        [
+          {
+            text: "My location",
+            request_location: true,
+          },
+        ],
+        ["Cancel"],
+      ],
+    },
+  };
+  bot
+    .sendMessage(msg.chat.id, "Can we have your gps location?", option)
+    .then(() => {
+      bot.once("location", (msg1) => {
+        bot.sendMessage(
+          msg1.chat.id,
+          "Thanks,your gps coordinates are: " +
+            msg1.location.longitude +
+            " " +
+            msg1.location.latitude
+        );
+      });
     });
 });
 
