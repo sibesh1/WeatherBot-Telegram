@@ -1,4 +1,6 @@
 require("dotenv").config();
+const express = require("express");
+const app = express();
 const TelegramBot = require("node-telegram-bot-api");
 const axios = require("axios");
 
@@ -62,3 +64,5 @@ bot.onText(/\/current/, (msg, match) => {
       bot.sendMessage("Some error occurred.I will rectify it soon.");
     });
 });
+
+app.listen(process.env.PORT || 3000);
