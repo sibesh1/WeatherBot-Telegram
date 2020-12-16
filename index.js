@@ -12,20 +12,6 @@ app.get("/", (request, response) => {
   response.send("<h1>Hello,this is my telegram bot.</h1>");
 });
 
-const wakeup = () => {
-  console.log("wakeup");
-  axios
-    .get(process.env.MYBACKENDURL)
-    .then(function (response) {
-      // handle success
-      console.log(response);
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error);
-    });
-};
-
 // Created instance of TelegramBot
 const bot = new TelegramBot(token, {
   polling: true,
@@ -33,7 +19,6 @@ const bot = new TelegramBot(token, {
 
 // Listener (handler) for telegram's /info event
 bot.onText(/\/info/, (msg, match) => {
-  wakeup();
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, "Bot By Sibesh Behera\nhttps://github.com/sibesh1");
 });
@@ -45,6 +30,41 @@ bot.onText(/\/start/, (msg, match) => {
     chatId,
     "You can use this bot by typing in the below specified format:\n1)/info-Gives info of owner of this bot.\n2)/current Enter the name of location - Gives current weather details of the location.\n3)/forecast Enter the name of location - Gives weather forecast of the location.\n4)/usegps - Give access to your location and I will tell your weather accordingly."
   );
+});
+
+// Listener (handler) for telegram's /forecast event
+bot.onText(/\/forecast/, (msg, match) => {
+  const chatId = msg.chat.id;
+  const location = match.input.split(" ")[1];
+  const weatherurl = `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${location}&days=3`;
+
+  if (location === undefined) {
+    bot.sendMessage(chatId, "Please provide a valid location!");
+    return;
+  }
+
+  axios
+    .get(weatherurl)
+    .then(function (response) {
+      // handle success
+      const data = response.data.forecast.forecastday;
+      let reply = "";
+      // console.log(data);
+      data.forEach((element) => {
+        //console.log(element.date);
+        const temp = `Date:${element.date}  MAXTEMP:${element.day.maxtemp_c}\u00B0C , MINTEMP:${element.day.mintemp_c}\u00B0C , HUMIDITY:${element.day.avghumidity}%, MAXWIND:${element.day.maxwind_kph}kph`;
+        //console.log(temp);
+        reply += temp + "\n";
+        //console.log(reply);
+      });
+      //console.log(reply);
+      bot.sendMessage(chatId, reply);
+    })
+    .catch(function (error) {
+      // handle error
+      bot.sendMessage(chatId, "Some error occurred.I will rectify it soon.");
+      console.log(error);
+    });
 });
 
 // Listener (handler) for telegram's /location event
@@ -63,19 +83,17 @@ bot.onText(/\/current/, (msg, match) => {
     return;
   }
 
-  let data = [];
-
   axios
     .get(weatherurl)
     .then(function (response) {
       // handle success
-      data = response.data;
+      const data = response.data;
       //   console.log(
       //     `Your location is ${data.location.name},${data.location.country}.\nThe current temperature is ${data.current.temp_c}C and feelslike ${data.current.feelslike_c}C.\nThe windspeed is ${data.current.wind_kph}kph.`
       //   );
       bot.sendMessage(
         chatId,
-        `Your location is ${data.location.name},${data.location.country}.\nThe current temperature is ${data.current.temp_c}\u00B0C and feels like ${data.current.feelslike_c}\u00B0C.\nThe windspeed is ${data.current.wind_kph}kph.`
+        `The location you entered is ${data.location.name},${data.location.region},${data.location.country}.\nThe current temperature is ${data.current.temp_c}\u00B0C and feels like ${data.current.feelslike_c}\u00B0C.\nThe windspeed is ${data.current.wind_kph}kph and humidity is ${data.current.humidity}%.`
       );
     })
     .catch(function (error) {
@@ -123,13 +141,30 @@ bot.onText(/^\/usegps/, function (msg, match) {
     .sendMessage(msg.chat.id, "Can we have your gps location?", option)
     .then(() => {
       bot.once("location", (msg1) => {
-        bot.sendMessage(
-          msg1.chat.id,
-          "Thanks,your gps coordinates are: " +
-            msg1.location.longitude +
-            " " +
-            msg1.location.latitude
-        );
+        const latitude = msg1.location.latitude;
+        const longitude = msg1.location.longitude;
+        const url = `https://api.weatherapi.com/v1/forecast.json?key=3ee033d3cdf049978ba60804200312&q=${latitude},${longitude}`;
+
+        axios
+          .get(url)
+          .then(function (response) {
+            // handle success
+            const data = response.data;
+            //   console.log(
+            //     `Your location is ${data.location.name},${data.location.country}.\nThe current temperature is ${data.current.temp_c}C and feelslike ${data.current.feelslike_c}C.\nThe windspeed is ${data.current.wind_kph}kph.`
+            //   );
+            const reply = `The location you entered is ${data.location.name},${data.location.region},${data.location.country}.\nThe current temperature is ${data.current.temp_c}\u00B0C and feels like ${data.current.feelslike_c}\u00B0C.\nThe windspeed is ${data.current.wind_kph}kph and humidity is ${data.current.humidity}%.`;
+            //console.log(reply);
+            bot.sendMessage(msg1.chat.id, reply);
+          })
+          .catch(function (error) {
+            // handle error
+            bot.sendMessage(
+              chatId,
+              "Some error occurred.I will rectify it soon."
+            );
+            console.log(error);
+          });
       });
     });
 });
