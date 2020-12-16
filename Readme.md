@@ -9,4 +9,4 @@
 3)/forecast "any cityname" - gives 3 days weather forecast of the entered city  
 4)/usegps - aks for permission for knowing your gps coordinates and if allowed gives the current weather of your location.
 
-### Hosted on heroku.So,if the bot is not responding please ping it on - https://pure-forest-90048.herokuapp.com/ 
+### Hosted on heroku.So,if the bot is not responding please ping it on - https://safe-peak-22466.herokuapp.com/
