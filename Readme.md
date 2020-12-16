@@ -1,9 +1,7 @@
 ## Telegram Bot With Node.js
 
 ### Bot Link - t.me/knowtodaysweather_bot
-
 </br>
-
 #### Commands available:
 
 1)/info - gives my info to the user  
