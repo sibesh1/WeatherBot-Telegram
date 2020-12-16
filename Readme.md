@@ -2,8 +2,8 @@
 
 ### Bot Link - t.me/knowtodaysweather_bot
 </br>
-#### Commands available:
 
+#### Commands available:
 1)/info - gives my info to the user  
 2)/current "any cityname" - gives current weather details of the entered city  
 3)/forecast "any cityname" - gives 3 days weather forecast of the entered city  
